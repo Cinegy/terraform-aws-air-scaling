@@ -11,7 +11,6 @@ variable "app_name" {
   description = "Name to used to label application deployment, for example 'central' or 'air'."
 }
 
-
 # Module specific variables
 variable "cidr_block" {
   description = "IP range in CIDR format for VPC usage"
