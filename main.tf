@@ -2,7 +2,7 @@
 // Modules
 module "cinegy_base" {
   source  = "app.terraform.io/cinegy/cinegy-base/aws"
-  version = "0.0.5"
+  version = "0.0.8"
 
   app_name = "air-test"
   aws_region = "eu-west-1"
