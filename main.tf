@@ -8,5 +8,6 @@ module "cinegy_base" {
   aws_region = "eu-west-1"
   customer_tag = "CINEGY"
   environment_name = "dev"
+  domain_name = var.domain_name
   domain_admin_password = var.domain_admin_password
 }
