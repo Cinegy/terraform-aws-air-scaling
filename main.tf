@@ -87,6 +87,7 @@ module "cinegy-air" {
   host_name_prefix  = "AIR${count.index+1}A"
   host_description  = "DEV-Playout (AIR) ${count.index+1}A"
   aws_subnet_tier   = "Public"
+  root_volume_size  = 65
 
   security_groups = [
     module.cinegy_base.remote_access_security_group,
