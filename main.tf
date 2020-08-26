@@ -12,3 +12,8 @@ module "cinegy_base" {
   domain_name = var.domain_name
   domain_admin_password = var.domain_admin_password
 }
+
+module "cinegy-base-winvm" {
+  source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
+  version = "0.0.1"
+}
