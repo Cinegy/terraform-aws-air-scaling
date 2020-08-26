@@ -1,3 +1,4 @@
+# mark this installation as being hosted by Terraform Cloud in the Cinegy org
 terraform {
   backend "remote" {
     organization = "cinegy"
@@ -8,7 +9,7 @@ terraform {
   }
 }
 
-# Define repeatedly re-used variables here
+# define repeatedly re-used variables here
 locals {
   app_name = "air-test"
   aws_region = "eu-west-1"
@@ -16,8 +17,9 @@ locals {
   environment_name = "dev"
 }
 
+# define the specific providers, including providers required to pass into modules
 provider "aws" {
-  region  = var.aws_region
+  region  = local.aws_region
   version = "~> 2.70"
 }
 
@@ -38,7 +40,7 @@ module "cinegy_base" {
   aws_region = local.aws_region
   customer_tag = local.customer_tag
   environment_name = local.environment_name
-  version = "0.0.10"  
+  version = "0.0.11"  
 
   aws_secrets_privatekey_arn = "arn:aws:secretsmanager:eu-west-1:564731076164:secret:terraform-cinegycentral-deployment/dev/privatekey.pem-GVW7XA"
   domain_name = var.domain_name
@@ -70,7 +72,9 @@ module "cinegy-base-winvm" {
   instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
   vpc_id = module.cinegy_base.main_vpc
   directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.7"
+  version = "0.0.10"
+
+  count = 0
 
   security_groups = [
     module.cinegy_base.remote_access_security_group,
@@ -78,6 +82,7 @@ module "cinegy-base-winvm" {
   ]
 
 }
+
 
 module "sysadmin-vm" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
@@ -88,7 +93,7 @@ module "sysadmin-vm" {
   instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
   vpc_id = module.cinegy_base.main_vpc
   directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.7"
+  version = "0.0.10"
 
   host_name_prefix = "SYSADMIN1A"
   host_description = "DEV-Sysadmin Terminal (SYSADMIN) 1A"
