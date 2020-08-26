@@ -47,43 +47,6 @@ module "cinegy_base" {
   domain_admin_password = var.domain_admin_password
 }
 
-/*
-module "cinegy-air" {
-  source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
-  app_name = local.app_name
-  aws_region = local.aws_region
-  customer_tag = local.customer_tag
-  environment_name = local.environment_name
-  instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
-  vpc_id = module.cinegy_base.main_vpc
-  directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.7"
-
-  ami_name = "Marketplace_Air_v14*"
-}*/
-
-
-module "cinegy-base-winvm" {
-  source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
-  app_name = local.app_name
-  aws_region = local.aws_region
-  customer_tag = local.customer_tag
-  environment_name = local.environment_name  
-  instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
-  vpc_id = module.cinegy_base.main_vpc
-  directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.10"
-
-  count = 0
-
-  security_groups = [
-    module.cinegy_base.remote_access_security_group,
-    module.cinegy_base.remote_access_udp_6000_6100
-  ]
-
-}
-
-
 module "sysadmin-vm" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   app_name = local.app_name
@@ -106,3 +69,27 @@ module "sysadmin-vm" {
 
 }
 
+module "cinegy-air" {
+  source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
+  app_name = local.app_name
+  aws_region = local.aws_region
+  customer_tag = local.customer_tag
+  environment_name = local.environment_name
+  instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
+  vpc_id = module.cinegy_base.main_vpc
+  directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
+  version = "0.0.10"
+
+  count = 2
+
+  ami_name = "Marketplace_Air_v14*"
+  
+  host_name_prefix = "AIR${count.index+1}A"
+  host_description = "DEV-Playout (AIR) ${count.index+1}A"
+  aws_subnet_tier = "Public"
+
+  security_groups = [
+    module.cinegy_base.remote_access_security_group,
+    module.cinegy_base.remote_access_udp_6000_6100
+  ]
+}
