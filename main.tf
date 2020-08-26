@@ -82,7 +82,7 @@ module "cinegy-air" {
 
   count = 2
 
-  ami_name          = "Marketplace_Air_v14*"
+  //ami_name          = "Marketplace_Air_v14*" - use this AMI if you are not running from a Cinegy AWS account to get licenses for Air injected automatically
   instance_type     = "g3s.xlarge"
   host_name_prefix  = "AIR${count.index+1}A"
   host_description  = "DEV-Playout (AIR) ${count.index+1}A"
