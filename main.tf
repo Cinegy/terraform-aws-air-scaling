@@ -32,7 +32,8 @@ module "cinegy_base" {
   domain_admin_password = var.domain_admin_password
 }
 
-module "cinegy-base-winvm" {
+/*
+module "cinegy-air" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   app_name = local.app_name
   aws_region = local.aws_region
@@ -41,9 +42,10 @@ module "cinegy-base-winvm" {
   instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
   vpc_id = module.cinegy_base.main_vpc
   directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.6"
+  version = "0.0.7"
 
-}
+  ami_name = "Marketplace_Air_v14*"
+}*/
 
 module "sysadmin-vm" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
@@ -54,7 +56,7 @@ module "sysadmin-vm" {
   instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
   vpc_id = module.cinegy_base.main_vpc
   directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.6"
+  version = "0.0.7"
 
   host_name_prefix = "SYSADMIN1A"
   host_description = "DEV-Sysadmin Terminal (SYSADMIN) 1A"
