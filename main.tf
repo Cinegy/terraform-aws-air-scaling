@@ -16,6 +16,19 @@ locals {
   environment_name = "dev"
 }
 
+provider "aws" {
+  region  = var.aws_region
+  version = "~> 2.70"
+}
+
+provider "tls" {
+  version = "~> 2.2"
+}
+
+provider "template" {
+  version = "~> 2.1.2"
+}
+
 
 //--------------------------------------------------------------------
 // Modules
@@ -46,6 +59,25 @@ module "cinegy-air" {
 
   ami_name = "Marketplace_Air_v14*"
 }*/
+
+
+module "cinegy-base-winvm" {
+  source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
+  app_name = local.app_name
+  aws_region = local.aws_region
+  customer_tag = local.customer_tag
+  environment_name = local.environment_name  
+  instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
+  vpc_id = module.cinegy_base.main_vpc
+  directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
+  version = "0.0.7"
+
+  security_groups = [
+    module.cinegy_base.remote_access_security_group,
+    module.cinegy_base.remote_access_udp_6000_6100
+  ]
+
+}
 
 module "sysadmin-vm" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
