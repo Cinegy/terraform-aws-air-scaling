@@ -55,7 +55,7 @@ module "sysadmin-vm" {
   instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
   vpc_id = module.cinegy_base.main_vpc
   directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.12"
+  version = "0.0.13"
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix  = "SYSADMIN1A"
