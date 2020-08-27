@@ -80,7 +80,7 @@ EOF
 }
 
 
-# create a sysadmin machine for RDP access
+# create VMs to run Air workloads
 module "cinegy-air" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   version = "0.0.17"
@@ -107,6 +107,10 @@ module "cinegy-air" {
   ]
 
   user_data_script_extension = <<EOF
+  
+  Uninstall-WindowsFeature -Name Windows-Defender
+  Set-Service wuauserv -StartupType Disabled
+
   Install-CinegyPowershellModules
   Install-DefaultPackages
   Install-Product -PackageName Cinegy-Air-Trunk -VersionTag dev
