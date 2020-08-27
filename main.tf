@@ -55,12 +55,12 @@ module "sysadmin-vm" {
   instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
   vpc_id = module.cinegy_base.main_vpc
   directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.10"
+  version = "0.0.12"
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
-  host_name_prefix = "SYSADMIN1A"
-  host_description = "DEV-Sysadmin Terminal (SYSADMIN) 1A"
-  aws_subnet_tier = "Public"  
+  host_name_prefix  = "SYSADMIN1A"
+  host_description  = "DEV-Sysadmin Terminal (SYSADMIN) 1A"
+  instance_subnet   = module.cinegy_base.public_subnets.a
   instance_type     = "t3.medium"
 
   security_groups = [
@@ -72,6 +72,7 @@ module "sysadmin-vm" {
   InstallPowershellModules
   Install-DefaultPackages
   Install-Product -PackageName Cinegy-Air-Trunk -VersionTag dev
+  Get-AwsLicense -UseTaggedHostname $true
   RenameHost
 EOF
 }
