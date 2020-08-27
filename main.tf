@@ -15,6 +15,7 @@ locals {
   aws_region = "eu-west-1"
   customer_tag = "IABM"
   environment_name = "demo"
+  basevm_version = "0.0.14"
 }
 
 # define the specific providers, including providers required to pass into modules
@@ -55,7 +56,7 @@ module "sysadmin-vm" {
   instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
   vpc_id = module.cinegy_base.main_vpc
   directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
-  version = "0.0.13"
+  basevm_version = "0.0.14"
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix  = "SYSADMIN1A"
