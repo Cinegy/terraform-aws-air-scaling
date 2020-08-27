@@ -4,7 +4,7 @@ terraform {
     organization = "cinegy"
 
     workspaces {
-      name = "CinegyVPC"
+      name = "terraform-aws-air-scaling"
     }
   }
 }
@@ -14,7 +14,7 @@ locals {
   app_name = "air-scaletest"
   aws_region = "eu-west-1"
   customer_tag = "IABM"
-  environment_name = "dev"
+  environment_name = "demo"
 }
 
 # define the specific providers, including providers required to pass into modules
@@ -40,7 +40,7 @@ module "cinegy_base" {
   environment_name = local.environment_name
   version = "0.0.11"  
 
-  aws_secrets_privatekey_arn = "arn:aws:secretsmanager:eu-west-1:564731076164:secret:terraform-cinegycentral-deployment/dev/privatekey.pem-GVW7XA"
+  aws_secrets_privatekey_arn = "arn:aws:secretsmanager:eu-west-1:564731076164:secret:cinegy-qa/privatekey.pem-ChNfQs"
   domain_name = var.domain_name
   domain_admin_password = var.domain_admin_password
 }
@@ -59,7 +59,7 @@ module "sysadmin-vm" {
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix  = "SYSADMIN1A"
-  host_description  = "DEV-Sysadmin Terminal (SYSADMIN) 1A"
+  host_description  = "${upper(environment_name)}-Sysadmin Terminal (SYSADMIN) 1A"
   instance_subnet   = module.cinegy_base.public_subnets.a
   instance_type     = "t3.medium"
 
@@ -69,7 +69,7 @@ module "sysadmin-vm" {
   ]
 
   user_data_script_extension = <<EOF
-  InstallPowershellModules
+  Install-CinegyPowershellModules
   Install-DefaultPackages
   Install-Product -PackageName Cinegy-Air-Trunk -VersionTag dev
   Get-AwsLicense -UseTaggedHostname $true
