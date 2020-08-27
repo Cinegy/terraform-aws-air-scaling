@@ -34,7 +34,7 @@ provider "template" {
 # install the base infrastructure required to support other module elements
 module "cinegy_base" {
   source  = "app.terraform.io/cinegy/cinegy-base/aws"
-  version = "0.0.11"
+  version = "0.0.12"
 
   app_name = local.app_name
   aws_region = local.aws_region
@@ -49,15 +49,15 @@ module "cinegy_base" {
 # create a sysadmin machine for RDP access
 module "sysadmin-vm" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
-  version = "0.0.14"
+  version = "0.0.17"
 
-  app_name = local.app_name
-  aws_region = local.aws_region
-  customer_tag = local.customer_tag
-  environment_name = local.environment_name  
-  instance_profile_name = module.cinegy_base.instance_profile_default_ec2_instance_name
-  vpc_id = module.cinegy_base.main_vpc
-  directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
+  app_name          = local.app_name
+  aws_region        = local.aws_region
+  customer_tag      = local.customer_tag
+  environment_name  = local.environment_name  
+  instance_profile  = module.cinegy_base.instance_profile_default_ec2_instance_name
+  vpc_id            = module.cinegy_base.main_vpc
+  ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix  = "SYSADMIN1A"
@@ -73,7 +73,7 @@ module "sysadmin-vm" {
   user_data_script_extension = <<EOF
   Install-CinegyPowershellModules
   Install-DefaultPackages
-  Install-Product -PackageName Cinegy-Air-Trunk -VersionTag dev
+  Install-Product -PackageName Cinegy-License-Service-Trunk -VersionTag dev
   Get-AwsLicense -UseTaggedHostname $true
   RenameHost
 EOF
