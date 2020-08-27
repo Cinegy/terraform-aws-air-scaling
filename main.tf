@@ -11,7 +11,7 @@ terraform {
 
 # define repeatedly re-used variables here
 locals {
-  app_name = "air-test"
+  app_name = "air-scaletest"
   aws_region = "eu-west-1"
   customer_tag = "IABM"
   environment_name = "dev"
@@ -31,9 +31,7 @@ provider "template" {
   version = "~> 2.1.2"
 }
 
-
-//--------------------------------------------------------------------
-// Modules
+# install the base infrastructure required to support other module elements
 module "cinegy_base" {
   source  = "app.terraform.io/cinegy/cinegy-base/aws"
   app_name = local.app_name
@@ -47,6 +45,7 @@ module "cinegy_base" {
   domain_admin_password = var.domain_admin_password
 }
 
+# create a sysadmin machine for RDP access
 module "sysadmin-vm" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   app_name = local.app_name
@@ -61,13 +60,20 @@ module "sysadmin-vm" {
   ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix = "SYSADMIN1A"
   host_description = "DEV-Sysadmin Terminal (SYSADMIN) 1A"
-  aws_subnet_tier = "Public"
+  aws_subnet_tier = "Public"  
+  instance_type     = "t3.medium"
 
   security_groups = [
     module.cinegy_base.remote_access_security_group,
     module.cinegy_base.remote_access_udp_6000_6100
   ]
 
+  user_data_script_extension = <<EOF
+  InstallPowershellModules
+  Install-DefaultPackages
+  Install-Product -PackageName Cinegy-Air-Trunk -VersionTag dev
+  RenameHost
+EOF
 }
 
 /*
