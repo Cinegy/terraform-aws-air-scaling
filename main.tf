@@ -79,6 +79,42 @@ module "sysadmin-vm" {
 EOF
 }
 
+
+# create a sysadmin machine for RDP access
+module "cinegy-air" {
+  source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
+  version = "0.0.17"
+
+  count = 1
+
+  app_name          = local.app_name
+  aws_region        = local.aws_region
+  customer_tag      = local.customer_tag
+  environment_name  = local.environment_name  
+  instance_profile  = module.cinegy_base.instance_profile_default_ec2_instance_name
+  vpc_id            = module.cinegy_base.main_vpc
+  ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
+
+  ami_name          = "Windows_Server-2019-English-Full-Base*"
+  host_name_prefix  = "AIR${count.index+1}A"
+  host_description  = "${upper(local.environment_name)}-Playout (AIR) ${count.index+1}A"
+  instance_subnet   = module.cinegy_base.public_subnets.a
+  instance_type     = "g4dn.xlarge"
+
+  security_groups = [
+    module.cinegy_base.remote_access_security_group,
+    module.cinegy_base.remote_access_udp_6000_6100
+  ]
+
+  user_data_script_extension = <<EOF
+  Install-CinegyPowershellModules
+  Install-DefaultPackages
+  Install-Product -PackageName Cinegy-Air-Trunk -VersionTag dev
+  Set-LicenseServerSettings -RemoteLicenseAddress "SYSADMIN1A-${upper(local.environment_name)}"
+  RenameHost
+EOF
+}
+
 /*
 
 module "cinegy-air" {
