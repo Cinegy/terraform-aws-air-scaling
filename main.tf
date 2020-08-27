@@ -58,6 +58,7 @@ module "sysadmin-vm" {
   directory_service_default_doc_name = module.cinegy_base.directory_service_default_doc_name
   version = "0.0.10"
 
+  ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix = "SYSADMIN1A"
   host_description = "DEV-Sysadmin Terminal (SYSADMIN) 1A"
   aws_subnet_tier = "Public"
@@ -68,6 +69,8 @@ module "sysadmin-vm" {
   ]
 
 }
+
+/*
 
 module "cinegy-air" {
   source                  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
@@ -83,6 +86,7 @@ module "cinegy-air" {
   count = 2
 
   //ami_name          = "Marketplace_Air_v14*" - use this AMI if you are not running from a Cinegy AWS account to get licenses for Air injected automatically
+  ami_name          = "Windows_Server-2019-English-Full-Base*"
   instance_type     = "g3s.xlarge"
   host_name_prefix  = "AIR${count.index+1}A"
   host_description  = "DEV-Playout (AIR) ${count.index+1}A"
@@ -94,3 +98,5 @@ module "cinegy-air" {
     module.cinegy_base.remote_access_udp_6000_6100
   ]
 }
+
+*/
