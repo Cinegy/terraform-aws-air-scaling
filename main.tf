@@ -15,6 +15,8 @@ locals {
   aws_region = "eu-west-1"
   customer_tag = "IABM"
   environment_name = "demo"
+  directory_type = "MicrosoftAD"
+  directory_edition = "Standard"
 }
 
 # define the specific providers, including providers required to pass into modules
@@ -44,6 +46,8 @@ module "cinegy_base" {
   aws_secrets_privatekey_arn = "arn:aws:secretsmanager:eu-west-1:564731076164:secret:cinegy-qa/privatekey.pem-ChNfQs"
   domain_name = var.domain_name
   domain_admin_password = var.domain_admin_password
+  directory_type = local.directory_type
+  directory_edition = local.directory_edition
 }
 
 # create a sysadmin machine for RDP access
@@ -114,6 +118,7 @@ module "cinegy-air" {
   Install-CinegyPowershellModules
   Install-DefaultPackages
   Install-Product -PackageName Cinegy-Air-Trunk -VersionTag dev
+  Install-Product -PackageName Thirdparty-AirNvidiaAwsDrivers-v14.x -VersionTag dev
   Set-LicenseServerSettings -RemoteLicenseAddress "SYSADMIN1A-${upper(local.environment_name)}"
   RenameHost
 EOF
