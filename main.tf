@@ -75,6 +75,11 @@ module "sysadmin-vm" {
   ]
 
   user_data_script_extension = <<EOF
+  Uninstall-WindowsFeature -Name Windows-Defender
+  Set-Service wuauserv -StartupType Disabled
+
+  Install-WindowsFeature -Name RSAT
+
   Install-CinegyPowershellModules
   Install-DefaultPackages
   Install-Product -PackageName Cinegy-License-Service-Trunk -VersionTag dev
@@ -85,11 +90,11 @@ EOF
 
 
 # create VMs to run Air workloads
-module "cinegy-air" {
+module "cinegy-air-temp" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   version = "0.0.17"
 
-  count = 0
+  count = 1
 
   app_name          = local.app_name
   aws_region        = local.aws_region
@@ -100,7 +105,7 @@ module "cinegy-air" {
   ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
-  host_name_prefix  = "AIR${count.index+1}A"
+  host_name_prefix  = "AIRTEMP1-${count.index+1}A"
   host_description  = "${upper(local.environment_name)}-Playout (AIR) ${count.index+1}A"
   instance_subnet   = module.cinegy_base.public_subnets.a
   instance_type     = "g4dn.xlarge"
