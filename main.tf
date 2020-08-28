@@ -85,6 +85,7 @@ module "sysadmin-vm" {
   Install-DefaultPackages
   Install-Product -PackageName Cinegy-License-Service-Trunk -VersionTag dev
   Get-AwsLicense -UseTaggedHostname $true
+
   RenameHost
 EOF
 }
@@ -95,7 +96,7 @@ module "cinegy-air-temp" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   version = "0.0.19"
 
-  count = 1
+  count = 0
 
   app_name          = local.app_name
   aws_region        = local.aws_region
@@ -124,9 +125,17 @@ module "cinegy-air-temp" {
 
   Install-CinegyPowershellModules
   Install-DefaultPackages
-  Install-Product -PackageName Cinegy-Air-Trunk -VersionTag dev
+  Install-Product -PackageName Cinegy-Air-Trunk -VersionTag stage
   Install-Product -PackageName Thirdparty-AirNvidiaAwsDrivers-v14.x -VersionTag dev
   Set-LicenseServerSettings -RemoteLicenseAddress "SYSADMIN1A-${upper(local.environment_name)}"
+  
+  Get-Disk | Where-Object partitionstyle -eq 'raw' | 
+  Initialize-Disk -PartitionStyle MBR -PassThru | 
+  New-Partition -AssignDriveLetter -UseMaximumSize | 
+  Format-Volume -FileSystem NTFS -NewFileSystemLabel "DATA" -Confirm:$false 
+
+  New-Item -ItemType directory -Path "D:\Content"
+
   RenameHost
 EOF
 }

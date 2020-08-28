@@ -1,16 +1,19 @@
-Param([int]$engineCount=1)
+Param(
+[int]$engineCount,
+[string]$outputIp
+)
 
 $modelXml = 
 @"
 <?xml version="1.0" encoding="utf-8" standalone="no"?>
 <AirEngineConfig Version="3">
-	<General InstanceName="" EmbedInstanceName="0" VideoBadFileName="" AudioBadFileName="" ExternalCommandsServer="" IdleColor="#0000FF" MinimumItemLen="500" MarkNewItemStart="0" ProcessCC="1" ProcessTeletext="1" HTTPOnLocalhostOnly="0" VideoAccelerator="Direct3D11/0" QueueSize="10" FeedbackCodec="4294901760" ProcessingMode="0" OutBlocks="3" FeedbackAudioCodec="4"/>
+	<General InstanceName="" EmbedInstanceName="1" VideoBadFileName="" AudioBadFileName="" ExternalCommandsServer="" IdleColor="#0000FF" MinimumItemLen="500" MarkNewItemStart="0" ProcessCC="1" ProcessTeletext="1" HTTPOnLocalhostOnly="0" VideoAccelerator="Direct3D11/0" QueueSize="10" FeedbackCodec="4294901760" ProcessingMode="0" OutBlocks="3" FeedbackAudioCodec="4"/>
 	<StartInLive Enabled="0" LiveTargetAspect="0" AudioMatrixFileName="" AudioMatrixName=""/>
 	<SCTE35Generator SplicePrerollMs="4000" Scte104Line="11" AutoReturnMode="0"/>
 	<Licensing BasicProduction="0" BasicAutomaton="0" AdvancedProduction="1" AdvancedAutomaton="1"/>
 	<Channels MaxFormat="720x576i_25 4:3" DropFrame="0">
 		<Channel0 Format="720x576i_25 16:9" ColorInfo="17">
-			<Output0 Clsid="{BDDDCDE6-D5C6-4833-B4C4-39DAA9B014A7}" Url="srt://0.0.0.0:6000" MulticastSourceIP="0.0.0.0" MulticastSourceIP2="0.0.0.0" MulticastTTL="1" TSPacketsInRTP="7" RegistrationServer="" OutputID="" ServiceID="1" TransportID="0" PMT_PID="256" PCR_PID="0" SCTE35_PID="0" VideoType="131073" VideoBitrate="3000000" GOPSize="30" GOPPDist="1" ClosedGOP="1" ChromaFormat="0" FrameCodingType="1" VideoPID="4096" AudioStreams="1" AudioStreamInput_0="0" AudioStreamPID_0="4097" AudioStreamType_0="0" AudioStreamBitrate_0="128000" AudioStreamLanguage_0="" H264EntropyCoding="0" AdaptiveGOP="0" TransportRate="0" OP4247_PID="0" CodingWindow="4294967295" RateMode="0" BitDepth="8" ErrorCorrection="0" SrtPassphrase="" OP4247_Descriptor="eng:2:801" OP4247_Bitrate="400000">
+			<Output0 Clsid="{BDDDCDE6-D5C6-4833-B4C4-39DAA9B014A7}" Url="srt://34.254.239.223:6000" MulticastSourceIP="0.0.0.0" MulticastSourceIP2="0.0.0.0" MulticastTTL="1" TSPacketsInRTP="7" RegistrationServer="" OutputID="" ServiceID="1" TransportID="0" PMT_PID="256" PCR_PID="0" SCTE35_PID="0" VideoType="131073" VideoBitrate="3000000" GOPSize="30" GOPPDist="1" ClosedGOP="1" ChromaFormat="0" FrameCodingType="1" VideoPID="4096" AudioStreams="1" AudioStreamInput_0="0" AudioStreamPID_0="4097" AudioStreamType_0="0" AudioStreamBitrate_0="128000" AudioStreamLanguage_0="" H264EntropyCoding="0" AdaptiveGOP="0" TransportRate="0" OP4247_PID="0" CodingWindow="4294967295" RateMode="0" BitDepth="8" ErrorCorrection="0" SrtPassphrase="" OP4247_Descriptor="eng:2:801" OP4247_Bitrate="400000">
 				<Prescale Enabled="0" Pixels="720" Lines="576" HiFps="0" Progressive="0"/>
 			</Output0>
 		</Channel0>
@@ -59,9 +62,9 @@ New-Item -ItemType Directory -Force -Path C:\ProgramData\Cinegy\CinegyAir\Config
 [xml]$profileXml = $modelXml
 
 for($i =0 ; $i -lt $engineCount; $i++ ){
-    $profileXml.AirEngineConfig.General.InstanceName = "Air$i"
-    $profileXml.AirEngineConfig.General.IdleColor = "#{0:X6}" -f (15 * $i)
-    $profileXml.AirEngineConfig.Channels.Channel0.Output0.Url = "srt://34.254.239.223:" + (6000 + $i)
+    $profileXml.AirEngineConfig.General.InstanceName = "Air$($i+1)"
+    $profileXml.AirEngineConfig.General.IdleColor = "#{0:X6}" -f (10 * $i)
+    $profileXml.AirEngineConfig.Channels.Channel0.Output0.Url = "srt://" + $outputIp + ":" + (6000 + $i)
     $profileXml.AirEngineConfig.Logging.LogFolder = "C:\Data\Logs\Air$i"
     New-Item -ItemType Directory -Force -Path $profileXml.AirEngineConfig.Logging.LogFolder
     $profileXml.Save("C:\ProgramData\Cinegy\CinegyAir\Config\Instance-$i.Config.xml")
