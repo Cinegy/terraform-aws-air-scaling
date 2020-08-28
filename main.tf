@@ -79,12 +79,13 @@ module "sysadmin-vm" {
   Uninstall-WindowsFeature -Name Windows-Defender
   Set-Service wuauserv -StartupType Disabled
 
-  Install-WindowsFeature -Name RSAT
+  Install-WindowsFeature -Name RSAT-DNS-Server,RSAT
 
   Install-CinegyPowershellModules
   Install-DefaultPackages
   Install-Product -PackageName Cinegy-License-Service-Trunk -VersionTag dev
   Get-AwsLicense -UseTaggedHostname $true
+  Set-LicenseServerSettings -AllowSharing $true -ServiceUrl "https://api.central.cinegy.com/awsmrkt/v1/license/renew?serialId="
 
   RenameHost
 EOF
@@ -96,7 +97,7 @@ module "cinegy-air-temp" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   version = "0.0.19"
 
-  count = 0
+  count = 1
 
   app_name          = local.app_name
   aws_region        = local.aws_region
