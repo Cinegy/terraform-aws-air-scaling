@@ -97,7 +97,7 @@ module "cinegy-air" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   version = "0.0.20"
 
-  count = 0
+  count = 12
 
   app_name          = local.app_name
   aws_region        = local.aws_region
