@@ -61,7 +61,8 @@ module "sysadmin-vm" {
   environment_name  = local.environment_name  
   instance_profile  = module.cinegy_base.instance_profile_default_ec2_instance_name
   vpc_id            = module.cinegy_base.main_vpc
-  #ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
+  ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
+  join_ad           = true  
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix  = "SYSADMIN1A"
@@ -88,7 +89,6 @@ module "sysadmin-vm" {
   Set-LicenseServerSettings -AllowSharing $true -ServiceUrl "https://api.central.cinegy.com/awsmrkt/v1/license/renew?serialId="
 
   RenameHost
-  Restart-Computer
 EOF
 }
 
@@ -104,8 +104,9 @@ module "cinegy-air" {
   customer_tag      = local.customer_tag
   environment_name  = local.environment_name  
   instance_profile  = module.cinegy_base.instance_profile_default_ec2_instance_name
-  vpc_id            = module.cinegy_base.main_vpc
-  #ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
+  vpc_id            = module.cinegy_base.main_vpc  
+  ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
+  join_ad           = true 
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix  = "AIR-${count.index+1}A"
@@ -157,7 +158,5 @@ module "cinegy-air" {
   Register-ScheduledJob -Trigger $trigger -FilePath D:\scripts\run-test-cycle.ps1 -Name TestCycle
 
   RenameHost
-  
-  Restart-Computer
 EOF
 }
