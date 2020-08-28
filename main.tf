@@ -130,44 +130,101 @@ module "cinegy-air-temp" {
   Install-Product -PackageName Thirdparty-AirNvidiaAwsDrivers-v14.x -VersionTag dev
   Set-LicenseServerSettings -RemoteLicenseAddress "SYSADMIN1A-${upper(local.environment_name)}"
   
+  #format scratch disk
   Get-Disk | Where-Object partitionstyle -eq 'raw' | 
   Initialize-Disk -PartitionStyle MBR -PassThru | 
   New-Partition -AssignDriveLetter -UseMaximumSize | 
   Format-Volume -FileSystem NTFS -NewFileSystemLabel "DATA" -Confirm:$false 
 
-  New-Item -ItemType directory -Path "D:\Content"
+  #download test content
+  $bucket = 'cinegyqa-simple-playout-content'
+
+  $files = Get-S3Object -BucketName $bucket -KeyPrefix 'scripts'
+  foreach($file in $files) {
+    Copy-S3Object -SourceBucket $bucket -SourceKey $($file.Key) -LocalFolder 'd:\'
+  }
+
+  $files = Get-S3Object -BucketName $bucket -KeyPrefix 'content'
+  foreach($file in $files) {
+    Copy-S3Object -SourceBucket $bucket -SourceKey $($file.Key) -LocalFolder 'd:\'
+  }
+
+  $multiviewerAddress = "MV" + ${count.index+1} + ".qa.terraform.cinegy.net"
+  [System.Environment]::SetEnvironmentVariable('MULTIVIEWER_ADDRESS', $multiviewerAddress, [System.EnvironmentVariableTarget]::Machine)
+  [System.Environment]::SetEnvironmentVariable('ENGINE_COUNT', 25, [System.EnvironmentVariableTarget]::Machine)
+	
+  $trigger = New-JobTrigger -AtStartup -RandomDelay 00:00:30
+  Register-ScheduledJob -Trigger $trigger -FilePath D:\scripts\run-test-cycle.ps1 -Name TestCycle
 
   RenameHost
 EOF
 }
 
-/*
 
+# create VMs to run Air workloads
 module "cinegy-air" {
-  source                  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
-  app_name                = local.app_name
-  aws_region              = local.aws_region
-  customer_tag            = local.customer_tag
-  environment_name        = local.environment_name
-  instance_profile_name   = module.cinegy_base.instance_profile_default_ec2_instance_name
-  vpc_id                  = module.cinegy_base.main_vpc
-  directory_service_default_doc_name  = module.cinegy_base.directory_service_default_doc_name
-  version                 = "0.0.10"
+  source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
+  version = "0.0.19"
 
-  count = 2
+  count = 1
 
-  //ami_name          = "Marketplace_Air_v14*" - use this AMI if you are not running from a Cinegy AWS account to get licenses for Air injected automatically
+  app_name          = local.app_name
+  aws_region        = local.aws_region
+  customer_tag      = local.customer_tag
+  environment_name  = local.environment_name  
+  instance_profile  = module.cinegy_base.instance_profile_default_ec2_instance_name
+  vpc_id            = module.cinegy_base.main_vpc
+  ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
+
   ami_name          = "Windows_Server-2019-English-Full-Base*"
-  instance_type     = "g3s.xlarge"
-  host_name_prefix  = "AIR${count.index+1}A"
-  host_description  = "DEV-Playout (AIR) ${count.index+1}A"
-  aws_subnet_tier   = "Public"
-  root_volume_size  = 65
+  host_name_prefix  = "AIR1-${count.index+1}A"
+  host_description  = "${upper(local.environment_name)}-Playout (AIR) ${count.index+1}A"
+  instance_subnet   = module.cinegy_base.private_subnets.a
+  instance_type     = "g4dn.2xlarge"
 
   security_groups = [
     module.cinegy_base.remote_access_security_group,
-    module.cinegy_base.remote_access_udp_6000_6100
+    module.cinegy_base.remote_access_udp_6000_6100,
+    module.cinegy_base.open_internal_access_security_group
   ]
-}
 
-*/
+  user_data_script_extension = <<EOF
+  
+  Uninstall-WindowsFeature -Name Windows-Defender
+  Set-Service wuauserv -StartupType Disabled
+
+  Install-CinegyPowershellModules
+  Install-DefaultPackages
+  Install-Product -PackageName Cinegy-Air-Trunk -VersionTag stage
+  Install-Product -PackageName Thirdparty-AirNvidiaAwsDrivers-v14.x -VersionTag dev
+  Set-LicenseServerSettings -RemoteLicenseAddress "SYSADMIN1A-${upper(local.environment_name)}"
+  
+  #format scratch disk
+  Get-Disk | Where-Object partitionstyle -eq 'raw' | 
+  Initialize-Disk -PartitionStyle MBR -PassThru | 
+  New-Partition -AssignDriveLetter -UseMaximumSize | 
+  Format-Volume -FileSystem NTFS -NewFileSystemLabel "DATA" -Confirm:$false 
+
+  #download test content
+  $bucket = 'cinegyqa-simple-playout-content'
+
+  $files = Get-S3Object -BucketName $bucket -KeyPrefix 'scripts'
+  foreach($file in $files) {
+    Copy-S3Object -SourceBucket $bucket -SourceKey $($file.Key) -LocalFolder 'd:\'
+  }
+
+  $files = Get-S3Object -BucketName $bucket -KeyPrefix 'content'
+  foreach($file in $files) {
+    Copy-S3Object -SourceBucket $bucket -SourceKey $($file.Key) -LocalFolder 'd:\'
+  }
+
+  $multiviewerAddress = "MV" + ${count.index+1} + ".qa.terraform.cinegy.net"
+  [System.Environment]::SetEnvironmentVariable('MULTIVIEWER_ADDRESS', $multiviewerAddress, [System.EnvironmentVariableTarget]::Machine)
+  [System.Environment]::SetEnvironmentVariable('ENGINE_COUNT', 25, [System.EnvironmentVariableTarget]::Machine)
+	
+  $trigger = New-JobTrigger -AtStartup -RandomDelay 00:00:30
+  Register-ScheduledJob -Trigger $trigger -FilePath D:\scripts\run-test-cycle.ps1 -Name TestCycle
+
+  RenameHost
+EOF
+}
