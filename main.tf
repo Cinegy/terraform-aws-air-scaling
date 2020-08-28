@@ -106,8 +106,8 @@ module "cinegy-air-temp" {
   ad_join_doc_name  = module.cinegy_base.ad_join_doc_name
 
   ami_name          = "Windows_Server-2019-English-Full-Base*"
-  host_name_prefix  = "AIRTEMP1-${count.index+1}A"
-  host_description  = "${upper(local.environment_name)}-Playout (AIR) ${count.index+1}A"
+  host_name_prefix  = "AIRTMP1-${count.index+1}A"
+  host_description  = "${upper(local.environment_name)}-Playout TEMP (AIR) ${count.index+1}A"
   instance_subnet   = module.cinegy_base.private_subnets.a
   instance_type     = "g4dn.2xlarge"
 
