@@ -15,8 +15,8 @@ locals {
   aws_region = "eu-west-1"
   customer_tag = "IABM"
   environment_name = "demo"
-  directory_type = "MicrosoftAD"
-  directory_edition = "Standard"
+  directory_type = "SimpleAD"
+  directory_edition = null
 }
 
 # define the specific providers, including providers required to pass into modules
