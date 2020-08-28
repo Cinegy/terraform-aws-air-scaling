@@ -156,6 +156,6 @@ $fileIndex = 0;
 foreach($engineNumber in $randomPlayoutEngineList){
     Write-Output "Play file $($files[$fileIndex].FullName) on .\$engineNumber"
     & d:\scripts\AirFilePlayer.exe .\$($engineNumber) $($files[$fileIndex].FullName)
-    Start-Sleep -Milliseconds 200
+    Start-Sleep 5
     $fileIndex++
 }

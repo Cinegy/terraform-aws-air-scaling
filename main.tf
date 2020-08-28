@@ -91,7 +91,7 @@ module "sysadmin-vm" {
 EOF
 }
 
-
+/*
 # create VMs to run Air workloads
 module "cinegy-air-temp" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
@@ -159,7 +159,7 @@ module "cinegy-air-temp" {
   RenameHost
 EOF
 }
-
+*/
 
 # create VMs to run Air workloads
 module "cinegy-air" {
