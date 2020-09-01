@@ -97,7 +97,7 @@ module "cinegy-air" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
   version = "0.0.20"
 
-  count = 6
+  count = var.air_vm_count
 
   app_name          = local.app_name
   aws_region        = local.aws_region
@@ -152,7 +152,7 @@ module "cinegy-air" {
 
   $multiviewerAddress = "MV" + ${count.index+1} + ".qa.terraform.cinegy.net"
   [System.Environment]::SetEnvironmentVariable('MULTIVIEWER_ADDRESS', $multiviewerAddress, [System.EnvironmentVariableTarget]::Machine)
-  [System.Environment]::SetEnvironmentVariable('ENGINE_COUNT', 25, [System.EnvironmentVariableTarget]::Machine)
+  [System.Environment]::SetEnvironmentVariable('ENGINE_COUNT', ${var.engine_count}, [System.EnvironmentVariableTarget]::Machine)
 	
   $trigger = New-JobTrigger -AtStartup -RandomDelay 00:00:45
   Register-ScheduledJob -Trigger $trigger -FilePath D:\scripts\run-test-cycle.ps1 -Name TestCycle
