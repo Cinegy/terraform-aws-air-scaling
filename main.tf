@@ -17,7 +17,7 @@ locals {
   environment_name = "demo"
   directory_type = "SimpleAD"
   directory_edition = null
-  route53_zone_name = "qa.cinegy.net"
+  route53_zone_name = "qa.terraform.cinegy.net"
 }
 
 # define the specific providers, including providers required to pass into modules
