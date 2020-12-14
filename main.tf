@@ -38,7 +38,7 @@ provider "template" {
 module "cinegy_base" {
   
   source  = "app.terraform.io/cinegy/cinegy-base/aws"
-  version = "0.0.13"
+  version = "0.0.14"
 
   app_name = local.app_name
   aws_region = local.aws_region
