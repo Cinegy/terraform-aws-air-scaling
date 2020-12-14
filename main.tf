@@ -69,15 +69,14 @@ module "cinegy-air" {
   join_ad           = true
   #tenancy           = "host" 
 
-  ami_name          = "Windows_Server-2019-English-Full-Base*"
+  ami_name          = "Windows_Server-2019-English-Full-Radeon*"
   host_name_prefix  = "AIR${count.index+1}A"
   host_description  = "${upper(local.environment_name)}-Playout (AIR) ${count.index+1}A"
   instance_subnet   = module.cinegy_base.public_subnets.a
   instance_type     = "g4ad.4xlarge"
   create_external_dns_reference = true
   route53_zone_name = local.route53_zone_name
-  attach_data_volume = true
-  data_volume_size = 100
+  attach_data_volume = false
 
   security_groups = [
     module.cinegy_base.remote_access_security_group,
@@ -106,13 +105,13 @@ module "cinegy-air" {
   New-Partition -AssignDriveLetter -UseMaximumSize | 
   Format-Volume -FileSystem NTFS -NewFileSystemLabel "DATA" -Confirm:$false 
 
-  # #download test content
-  # $bucket = 'awscinegytesting-sample-content'
+  #download test content
+  $bucket = 'cinegyqa-testcontent'
 
-  # $files = Get-S3Object -BucketName $bucket -KeyPrefix 'scripts'
-  # foreach($file in $files) {
-  #   Copy-S3Object -SourceBucket $bucket -SourceKey $($file.Key) -LocalFolder 'd:\'
-  # }
+  $files = Get-S3Object -BucketName $bucket -KeyPrefix 'scripts'
+  foreach($file in $files) {
+    Copy-S3Object -SourceBucket $bucket -SourceKey $($file.Key) -LocalFolder 'd:\'
+  }
 
   [System.Environment]::SetEnvironmentVariable('ENGINE_COUNT', ${var.engine_count}, [System.EnvironmentVariableTarget]::Machine)
 	
