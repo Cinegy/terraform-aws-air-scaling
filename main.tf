@@ -23,15 +23,12 @@ locals {
 # define the specific providers, including providers required to pass into modules
 provider "aws" {
   region  = local.aws_region
-  version = "~> 2.70"
 }
 
 provider "tls" {
-  version = "~> 2.2"
 }
 
 provider "template" {
-  version = "~> 2.1.2"
 }
 
 # install the base infrastructure required to support other module elements
@@ -55,7 +52,7 @@ module "cinegy_base" {
 # create VMs to run Air workloads
 module "cinegy-air" {
   source  = "app.terraform.io/cinegy/cinegy-base-winvm/aws"
-  version = "0.0.28"
+  version = "0.0.31"
 
   count = var.air_vm_count
 
@@ -69,11 +66,11 @@ module "cinegy-air" {
   join_ad           = true
   #tenancy           = "host" 
 
-  ami_name          = "Windows_Server-2019-English-Full-Radeon*"
+  ami_name          = "Windows_Server-2019-English-Full-Base*"
   host_name_prefix  = "AIR${count.index+1}A"
   host_description  = "${upper(local.environment_name)}-Playout (AIR) ${count.index+1}A"
   instance_subnet   = module.cinegy_base.public_subnets.a
-  instance_type     = "g4ad.4xlarge"
+  instance_type     = "g4dn.2xlarge"
   create_external_dns_reference = true
   route53_zone_name = local.route53_zone_name
   attach_data_volume = false
@@ -89,7 +86,7 @@ module "cinegy-air" {
   Install-CinegyPowershellModules
   Install-DefaultPackages
   Install-Product -PackageName Cinegy-License-Service-Trunk -VersionTag dev
-  Install-Product -PackageName Cinegy-Air-v15.x -VersionTag dev
+  Install-Product -PackageName Cinegy-Air-v21.9 -VersionTag release
   Install-Product -PackageName Thirdparty-MetricBeat-NVGPU-v6.x -VersionTag dev
   Install-Product -PackageName Thirdparty-AWSCLI-v2.x -VersionTag prod
   
@@ -97,7 +94,7 @@ module "cinegy-air" {
   Set-LicenseServerSettings -AllowSharing $true -ServiceUrl "https://api.central.cinegy.com/awsmrkt/v1/license/renew?serialId="
   
   #fix Air Control DLL registry failure
-  Start-Process -FilePath "C:\Program Files\Cinegy\Cinegy Air PRO (x64) 15.0.0\CinegyAirServerEx.exe" -ArgumentList "/regserver"
+  Start-Process -FilePath "C:\Program Files\Cinegy\Cinegy Air PRO (x64)\CinegyAirServerEx.exe" -ArgumentList "/regserver"
 
   #format scratch disk
   Get-Disk | Where-Object partitionstyle -eq 'raw' | 
@@ -123,7 +120,7 @@ module "cinegy-air" {
 
   RenameHost
 
-  # #install NV drivers last, since they can trigger a reboot
-  # Install-Product -PackageName Thirdparty-AirNvidiaAwsDrivers-v14.x -VersionTag dev
+  #install NV drivers last, since they can trigger a reboot
+  Install-Product -PackageName Thirdparty-AirNvidiaAwsDrivers-v14.x -VersionTag dev
 EOF
 }
